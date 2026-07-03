@@ -10,11 +10,17 @@
 
     :root { --radius: 20px; }
 
-    html, body {
+    html {
+      height: 100%; width: 100%;
+      overflow: hidden;
+    }
+    body {
       height: 100%; width: 100%;
       font-family: 'Nunito', sans-serif;
       overflow: hidden;
       -webkit-tap-highlight-color: transparent;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
     }
 
     /* ── SCREEN SYSTEM ── */
@@ -941,7 +947,7 @@
   <div class="emoji-ring">
     <span>🌸</span><span>🌀</span><span>〰️</span><span>🐛</span><span>🌷</span><span>🌼</span>
   </div>
-  <button class="start-btn" onclick="goTo('guide')">START →</button>
+  <button class="start-btn" onclick="goTo('guide'); return false;">START →</button>
   <div class="byline">Handmade by Jade Lilly &nbsp;·&nbsp; Every piece begins with play.</div>
 </div>
 
@@ -1247,11 +1253,13 @@
   /* ── NAVIGATION ── */
   function goTo(n) {
     if (n !== currentScreen) navHistory.push(n);
-    document.getElementById('screen-' + currentScreen).classList.remove('active');
+    const prev = document.getElementById('screen-' + currentScreen);
+    if (prev) prev.classList.remove('active');
     currentScreen = n;
     const el = document.getElementById('screen-' + n);
+    if (!el) { console.error('Screen not found: screen-' + n); return; }
     el.classList.add('active');
-    el.scrollTop = 0;
+    try { el.scrollTop = 0; } catch(e) {}
 
     const isStep = (n === 2 || n === 3);
     document.getElementById('progress-bar').classList.toggle('hidden', !isStep);
@@ -1277,9 +1285,11 @@
     if (navHistory.length > 1) {
       navHistory.pop();
       const prev = navHistory[navHistory.length - 1];
-      document.getElementById('screen-' + currentScreen).classList.remove('active');
+      const curEl = document.getElementById('screen-' + currentScreen);
+      if (curEl) curEl.classList.remove('active');
       currentScreen = prev;
-      document.getElementById('screen-' + prev).classList.add('active');
+      const prevEl = document.getElementById('screen-' + prev);
+      if (prevEl) prevEl.classList.add('active');
       document.getElementById('progress-bar').classList.toggle('hidden', prev !== 2 && prev !== 3);
       document.getElementById('back-btn').classList.toggle('hidden', prev === 1 || prev === 4 || prev === 'guide');
       if (prev === 2 || prev === 3) renderTray(prev);
